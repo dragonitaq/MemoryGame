@@ -75,13 +75,14 @@ document.addEventListener("DOMContentLoaded", () => {
   //Flip the cards
   function flipcard() {
     let cardId = this.getAttribute("data-id");
-    cardsChosen.push(cardArray[cardId].name);
-    cardsChosenId.push(cardId);
-    console.log(cardsChosenId);
-    this.setAttribute("src", cardArray[cardId].img);
-    if (cardsChosen.length === 2) {
-      setTimeout(checkForMatch, 100);
-    }
+    // cardId.removeEventListener("click", function () {
+      cardsChosen.push(cardArray[cardId].name);
+      cardsChosenId.push(cardId);
+      this.setAttribute("src", cardArray[cardId].img);
+      if (cardsChosen.length === 2) {
+        setTimeout(checkForMatch, 100);
+      }
+    // });
   }
 
   //Check for match
