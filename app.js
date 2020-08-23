@@ -51,15 +51,35 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   ];
 
-  // Randomize starting cards
-  cardArray.sort(() => 0.5 - Math.random());
-
   let cardsChosen = [];
   let cardsChosenId = [];
   let cardsWon = [];
+  let startTime, endTime, timeDiff;
 
   const grid = document.querySelector(".grid");
-  const resultDisplay = document.querySelector("#result");
+  const scoreDisplay = document.querySelector("#score");
+  const result = document.querySelector("#result");
+  const duration = document.querySelector("#duration");
+  const start = document.querySelector("#start");
+  const refresh = document.querySelector("#refresh");
+
+  // Randomize starting cards
+  function randomizeCards() {
+    cardArray.sort(() => 0.5 - Math.random());
+  }
+  //Assign function to refresh game button
+  refresh.addEventListener("click", () => {
+    location.reload(false);
+  });
+
+  //Assign function to start game button
+  start.addEventListener("click", createNewGame);
+
+  function createNewGame() {
+    randomizeCards();
+    createBoard();
+    startCountTime();
+  }
 
   //Creat the board
   function createBoard() {
@@ -69,46 +89,55 @@ document.addEventListener("DOMContentLoaded", () => {
       card.setAttribute("data-id", i);
       card.addEventListener("click", flipcard);
       grid.appendChild(card);
+      start.removeEventListener("click", createNewGame);
     }
   }
 
   //Flip the cards
   function flipcard() {
     let cardId = this.getAttribute("data-id");
-    // cardId.removeEventListener("click", function () {
-      cardsChosen.push(cardArray[cardId].name);
-      cardsChosenId.push(cardId);
-      this.setAttribute("src", cardArray[cardId].img);
-      if (cardsChosen.length === 2) {
-        setTimeout(checkForMatch, 100);
-      }
-    // });
+    this.removeEventListener("click", flipcard);
+    cardsChosen.push(cardArray[cardId].name);
+    cardsChosenId.push(cardId);
+    this.setAttribute("src", cardArray[cardId].img);
+    if (cardsChosen.length === 2) {
+      setTimeout(checkForMatch, 750);
+    }
   }
 
-  //Check for match
-  /* Need to add 2 operattions:
-  1) Prevent matched card being able to click again.
-  2) Prevent clicking the same card twice. */
   function checkForMatch() {
     let cards = document.querySelectorAll("img");
     if (cardsChosen[0] === cardsChosen[1]) {
-      alert("You found a match!");
       cards[cardsChosenId[0]].setAttribute("src", "images/white.png");
-      cards[[cardsChosenId[1]]].setAttribute("src", "images/white.png");
+      cards[cardsChosenId[1]].setAttribute("src", "images/white.png");
       cardsWon.push(cardsChosen);
     } else {
-      cards[[cardsChosenId[0]]].setAttribute("src", "images/blank.png");
-      cards[[cardsChosenId[1]]].setAttribute("src", "images/blank.png");
-      alert("Wrong. Try again!");
+      // setTimeout( function (){
+      cards[cardsChosenId[0]].setAttribute("src", "images/blank.png");
+      cards[cardsChosenId[0]].addEventListener("click", flipcard);
+      cards[cardsChosenId[1]].setAttribute("src", "images/blank.png");
+      cards[cardsChosenId[1]].addEventListener("click", flipcard);
+      // }, 500);
     }
     cardsChosen = [];
     cardsChosenId = [];
-    resultDisplay.textContent = cardsWon.length;
+    scoreDisplay.textContent = cardsWon.length + "/" + cardArray.length / 2;
     if (cardsWon.length === cardArray.length / 2) {
-      resultDisplay.textContent = "Congratulations! You have found them all!";
+      endCountTime();
+      result.textContent = "Congratulations! You have found them all!";
+      scoreDisplay.textContent = "";
+      timeDiff = (endTime - startTime) / 1000;
+      duration.textContent = timeDiff + " seconds";
     }
   }
 
-  //Call the function to creat the board
-  createBoard();
+  function startCountTime() {
+    startTime = new Date();
+  }
+
+  function endCountTime() {
+    endTime = new Date();
+  }
+
+  scoreDisplay.textContent = "0/" + cardArray.length / 2;
 });
